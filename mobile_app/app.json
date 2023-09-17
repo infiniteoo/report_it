@@ -9,7 +9,16 @@
     "splash": {
       "image": "./assets/report_it_splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#ffffff",
+      "expo": {
+        "android": {
+          "permissions": [
+            "CAMERA",
+            "READ_EXTERNAL_STORAGE",
+            "WRITE_EXTERNAL_STORAGE"
+          ]
+        }
+      }
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {

@@ -1,27 +1,30 @@
 import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, Image, Button } from 'react-native'
+import { View, StyleSheet, Image, Button, Text } from 'react-native'
 import Onboarding from 'react-native-onboarding-swiper'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import CameraComponent from './components/CameraComponent'
 
 const OnboardingScreens = ({ onDone }) => {
   return (
-    <Onboarding
-      onDone={onDone}
-      pages={[
-        {
-          backgroundColor: '#fff',
-          image: <Image source={require('./assets/report_it_splash.png')} />, // Update the path
-          title: 'Welcome to our app',
-          subtitle: 'This is the first slide.',
-        },
-        {
-          backgroundColor: '#fff',
-          image: <Image source={require('./assets/report_it_splash.png')} />, // Update the path
-          title: 'Enjoy the Experience',
-          subtitle: 'This is the second slide.',
-        },
-      ]}
-    />
+    <>
+      <Onboarding
+        onDone={onDone}
+        pages={[
+          {
+            backgroundColor: '#fff',
+            image: <Image source={require('./assets/report_it_splash.png')} />, // Update the path
+            title: 'Welcome to our app',
+            subtitle: 'This is the first slide.',
+          },
+          {
+            backgroundColor: '#fff',
+            image: <Image source={require('./assets/report_it_splash.png')} />, // Update the path
+            title: 'Enjoy the Experience',
+            subtitle: 'This is the second slide.',
+          },
+        ]}
+      />
+    </>
   )
 }
 
@@ -67,11 +70,11 @@ const App = () => {
 
   return (
     <View style={styles.container}>
+      <CameraComponent />
       <Button
         title="Reset Onboarding"
         onPress={() => setShowOnboarding(true)}
       />
-      {/* Your main app content goes here */}
     </View>
   )
 }
@@ -79,8 +82,9 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'around',
     alignItems: 'center',
+    marginTop: '15%',
   },
 })
 
