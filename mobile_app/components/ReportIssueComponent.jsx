@@ -4,11 +4,14 @@ import * as ImagePicker from "expo-image-picker";
 import { Camera } from "expo-camera";
 import axios from "axios";
 
+import BarcodeInput from "./BarcodeInput";
+
 const ReportIssueComponent = () => {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [camera, setCamera] = useState(null);
   const [imageUri, setImageUri] = useState(null);
   const [description, setDescription] = useState("");
+  const [barcodeData, setBarcodeData] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -31,6 +34,7 @@ const ReportIssueComponent = () => {
   const handleSubmit = async () => {
     const formData = new FormData();
     formData.append("description", description);
+    formData.append("barcodeData", barcodeData);
     formData.append("image", {
       uri: imageUri,
       type: "image/jpeg",
@@ -70,6 +74,11 @@ const ReportIssueComponent = () => {
           numberOfLines={4}
           onChangeText={setDescription}
           value={description}
+        />
+        <BarcodeInput
+          style={styles.barcodeInputStyle}
+          barcodeData={barcodeData}
+          setBarcodeData={setBarcodeData}
         />
         <Button title="Submit" onPress={handleSubmit} />
       </View>

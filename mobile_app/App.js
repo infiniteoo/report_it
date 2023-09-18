@@ -5,8 +5,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import CameraComponent from './components/CameraComponent'
 import DescriptionInput from './components/DescriptionInput'
 import ReportIssueComponent from './components/ReportIssueComponent'
-import axios from 'axios'
-import BarcodeInput from './components/BarcodeInput'
 
 const OnboardingScreens = ({ onDone }) => {
   return (
@@ -77,7 +75,6 @@ const App = () => {
       {/*   <CameraComponent />
       <DescriptionInput onChangeText={(text) => console.log(text)} /> */}
       <ReportIssueComponent />
-      <BarcodeInput style={styles.barcodeInputStyle} />
 
       <Button
         title="Reset Onboarding"

@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput } from "react-native";
 
-const BarcodeInput = () => {
-  const [barcodeData, setBarcodeData] = useState("");
-
+const BarcodeInput = ({ barcodeData, setBarcodeData }) => {
   const handleInputChange = (text) => {
     setBarcodeData(text);
   };
