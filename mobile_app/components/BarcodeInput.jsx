@@ -9,7 +9,7 @@ const BarcodeInput = ({ barcodeData, setBarcodeData }) => {
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <TextInput
-        placeholder="Scan a barcode..."
+        placeholder="Scan/Enter Pallet LPN..."
         value={barcodeData}
         onChangeText={handleInputChange}
         style={{

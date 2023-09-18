@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Button, View, Text, StyleSheet, TextInput } from "react-native";
+import {
+  Button,
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
+import { MaterialIcons } from "@expo/vector-icons"; // You'll need to install @expo/vector-icons if you haven't already
 import * as ImagePicker from "expo-image-picker";
 import { Camera } from "expo-camera";
 import axios from "axios";
@@ -12,22 +20,38 @@ const ReportIssueComponent = () => {
   const [imageUri, setImageUri] = useState(null);
   const [description, setDescription] = useState("");
   const [barcodeData, setBarcodeData] = useState("");
+  const [isCameraReady, setCameraReady] = useState(false);
 
   useEffect(() => {
     (async () => {
       const cameraStatus = await Camera.requestCameraPermissionsAsync();
-      const { status } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       setHasCameraPermission(cameraStatus.status === "granted");
     })();
   }, []);
 
   const takePicture = async () => {
-    if (camera) {
-      let photo = await camera.takePictureAsync();
-      console.log("photo", photo);
-      setImageUri(photo.uri);
+    if (camera && isCameraReady) {
+      try {
+        let photo = await camera.takePictureAsync();
+        console.log("photo", photo);
+        setImageUri(photo.uri);
+      } catch (error) {
+        console.error("Error taking picture:", error);
+      }
+    }
+  };
+
+  const takePhotoWithImagePicker = async () => {
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.cancelled) {
+      setImageUri(result.uri);
     }
   };
 
@@ -60,16 +84,25 @@ const ReportIssueComponent = () => {
     return <Text>No access to camera</Text>;
   }
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
       <Camera
-        style={{ flex: 0.7, aspectRatio: 2, borderRadius: 8 }}
+        style={styles.camera}
         ref={(ref) => setCamera(ref)}
+        onMountError={(error) => console.error("Camera error:", error)}
+        onCameraReady={() => setCameraReady(true)}
       />
-      <View style={{ flex: 0.3, padding: 10 }}>
-        <Button title="Take Picture" onPress={takePicture} />
+      <View style={styles.form}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={takePhotoWithImagePicker}
+        >
+          <Text style={styles.buttonText}>Take Picture</Text>
+          {/* You can also add a camera icon here */}
+        </TouchableOpacity>
         <TextInput
           style={styles.input}
           placeholder="Enter the description here..."
+          placeholderTextColor="#A9A9A9"
           multiline={true}
           numberOfLines={4}
           onChangeText={setDescription}
@@ -80,21 +113,77 @@ const ReportIssueComponent = () => {
           barcodeData={barcodeData}
           setBarcodeData={setBarcodeData}
         />
-        <Button title="Submit" onPress={handleSubmit} />
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: "#20B2AA" }]}
+          onPress={handleSubmit}
+        >
+          <Text style={styles.buttonText}>Submit</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F5F5F5",
+  },
+  camera: {
+    flex: 0.5,
+    width: "100%",
+    borderRadius: 15, // Increased border radius for a rounded appearance
+    marginBottom: 15,
+    overflow: "hidden", // Ensures that the camera view respects the borderRadius
+    // Drop shadow
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.34,
+    shadowRadius: 6.27,
+    elevation: 10,
+  },
+  form: {
+    flex: 0.5,
+    padding: 20,
+    justifyContent: "center", // Ensure the contents are centered
+    backgroundColor: "#FFF",
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+  },
   input: {
+    backgroundColor: "#F0F0F0",
+    width: "90%",
+    alignSelf: "center",
     height: 100,
-    borderColor: "gray",
-    borderWidth: 1,
-    borderRadius: 5,
-    padding: 10,
-    textAlignVertical: "top", // for multiline text input
+    borderRadius: 15,
+    padding: 15,
+    textAlignVertical: "top",
     marginTop: 20,
+    marginBottom: 20,
+  },
+  button: {
+    backgroundColor: "#FFA07A",
+    borderRadius: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignSelf: "center",
+    margin: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.36,
+    shadowRadius: 6.68,
+    elevation: 11,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    textAlign: "center",
   },
 });
 
