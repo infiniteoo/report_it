@@ -42,7 +42,7 @@ const ReportIssueComponent = () => {
     });
 
     try {
-      const response = await axios.post("http://localhost:7777", formData, {
+      const response = await axios.post("http://10.0.2.2:7777", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
