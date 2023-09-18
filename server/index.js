@@ -77,9 +77,13 @@ app.get('/', (req, res) => {
     .then((reports) => {
       // Modify each report's image path to the public URL
       const modifiedReports = reports.map((report) => {
+        let imageUrlToUse = `http://localhost:${PORT}/uploads/${report.image}`
+        if (report.image.startsWith('http')) {
+          imageUrlToUse = report.image
+        }
         return {
           ...report._doc,
-          /* image: `http://localhost:${PORT}/uploads/${report.image}`, */
+          image: imageUrlToUse,
         }
       })
       res.json(modifiedReports)
