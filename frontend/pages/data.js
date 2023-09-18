@@ -10,8 +10,12 @@ import {
   LineController,
   LineElement,
   PointElement,
+  DoughnutController,
+  RadarController,
+  RadialLinearScale,
+  HorizontalBar,
 } from 'chart.js'
-import { Bar, Pie, Line } from 'react-chartjs-2'
+import { Bar, Pie, Line, Doughnut, Radar, Bubble } from 'react-chartjs-2'
 import { faker } from '@faker-js/faker'
 import axios from 'axios'
 import { PieController, ArcElement, Color } from 'chart.js'
@@ -28,6 +32,9 @@ ChartJS.register(
   LineController,
   LineElement,
   PointElement,
+  DoughnutController,
+  RadarController,
+  RadialLinearScale,
 )
 
 const Data = () => {
@@ -242,6 +249,80 @@ const Data = () => {
                   stacked: true,
                 },
               },
+            }}
+          />
+        </div>
+        <div className="w-1/4">
+          <Doughnut
+            data={{
+              labels: Object.keys(incidentsBySubmittedBy),
+              datasets: [
+                {
+                  data: Object.values(incidentsBySubmittedBy),
+                  backgroundColor: [
+                    '#2c7f86',
+                    'red',
+                    '#f6e58d',
+                    '#ffbe76',
+                    '#ff7979',
+                  ],
+                },
+              ],
+            }}
+          />
+        </div>
+        <div className="w-1/4">
+          <Radar
+            data={{
+              labels: ['Location A', 'Location B', 'Location C'],
+              datasets: [
+                {
+                  label: 'Open Incidents',
+                  data: [5, 10, 15],
+                  borderColor: '#2c7f86',
+                  backgroundColor: 'rgba(44, 127, 134, 0.2)',
+                },
+                {
+                  label: 'Closed Incidents',
+                  data: [3, 7, 20],
+                  borderColor: 'red',
+                  backgroundColor: 'rgba(255, 0, 0, 0.2)',
+                },
+              ],
+            }}
+          />
+        </div>
+        <div className="w-1/4">
+          <Bar
+            data={{
+              labels: Object.keys(incidentsByLocation),
+              datasets: [
+                {
+                  label: 'Incidents by Location',
+                  data: Object.values(incidentsByLocation),
+                  backgroundColor: ['#2c7f86'],
+                },
+              ],
+            }}
+            options={{
+              indexAxis: 'y', // This makes it horizontal
+            }}
+          />
+        </div>
+        <div className="w-1/4">
+          <Bubble
+            data={{
+              datasets: [
+                {
+                  label: 'Severity on Dates',
+                  data: [
+                    { x: '1/1/2023', y: 7, r: 10 },
+                    { x: '1/2/2023', y: 5, r: 15 },
+                    // ... more data points
+                  ],
+                  backgroundColor: '#2c7f86',
+                },
+              ],
             }}
           />
         </div>
