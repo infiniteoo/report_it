@@ -4,7 +4,7 @@ const reportSchema = new mongoose.Schema({
   barcodeData: String,
   description: String,
   image: String,
-  status: String,
+
   date: Date,
   location: String,
   submittedBy: String,
