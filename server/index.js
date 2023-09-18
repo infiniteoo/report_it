@@ -79,7 +79,7 @@ app.get('/', (req, res) => {
       const modifiedReports = reports.map((report) => {
         return {
           ...report._doc,
-          image: `http://localhost:${PORT}/uploads/${report.image}`,
+          /* image: `http://localhost:${PORT}/uploads/${report.image}`, */
         }
       })
       res.json(modifiedReports)

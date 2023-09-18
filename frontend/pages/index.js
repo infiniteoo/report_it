@@ -12,6 +12,7 @@ export default function Home() {
       try {
         const response = await axios.get('http://localhost:7777/')
         setReports(response.data.reverse())
+        console.log('reports: ', reports)
       } catch (error) {
         console.error('Error fetching reports:', error)
       }
@@ -53,7 +54,7 @@ export default function Home() {
             href="/"
             className="text-black hover:text-white hover:bg-2c7f86 px-4 py-2 rounded transition-colors capitalize"
           >
-            INCIDENTS
+            REPORTS
           </a>
           <a
             href="/data"
