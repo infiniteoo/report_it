@@ -122,54 +122,62 @@ const Data = () => {
           </a>
         </div>
       </header>
-      <div className="w-full">
-        <Bar
-          data={{
-            labels: Object.keys(incidentsByDate),
-            datasets: [
-              {
-                label: 'Incidents by Date',
-                data: Object.values(incidentsByDate),
-                backgroundColor: '#2c7f86',
-              },
-            ],
-          }}
-        />
-        <Pie
-          data={{
-            labels: ['Open', 'Closed'],
-            datasets: [
-              {
-                data: [openIncidents, closedIncidents],
-                backgroundColor: ['#2c7f86', 'red'],
-              },
-            ],
-          }}
-        />
-        <Bar
-          data={{
-            labels: Object.keys(incidentsByLocation),
-            datasets: [
-              {
-                label: 'Incidents by Location',
-                data: Object.values(incidentsByLocation),
-                backgroundColor: '#2c7f86',
-              },
-            ],
-          }}
-        />
-        <Bar
-          data={{
-            labels: Object.keys(incidentsBySubmittedBy),
-            datasets: [
-              {
-                label: 'Incidents by Submitted By',
-                data: Object.values(incidentsBySubmittedBy),
-                backgroundColor: '#2c7f86',
-              },
-            ],
-          }}
-        />
+      <div className="flex flex-wrap justify-center w-full gap-8">
+        <div className="w-1/4">
+          <Bar
+            data={{
+              labels: Object.keys(incidentsByDate),
+              datasets: [
+                {
+                  label: 'Incidents by Date',
+                  data: Object.values(incidentsByDate),
+                  backgroundColor: '#2c7f86',
+                },
+              ],
+            }}
+          />
+        </div>
+        <div className="w-1/4">
+          <Pie
+            data={{
+              labels: ['Open', 'Closed'],
+              datasets: [
+                {
+                  data: [openIncidents, closedIncidents],
+                  backgroundColor: ['#2c7f86', 'red'],
+                },
+              ],
+            }}
+          />
+        </div>
+        <div className="w-1/4">
+          <Bar
+            data={{
+              labels: Object.keys(incidentsByLocation),
+              datasets: [
+                {
+                  label: 'Incidents by Location',
+                  data: Object.values(incidentsByLocation),
+                  backgroundColor: '#2c7f86',
+                },
+              ],
+            }}
+          />
+        </div>
+        <div className="w-1/4">
+          <Bar
+            data={{
+              labels: Object.keys(incidentsBySubmittedBy),
+              datasets: [
+                {
+                  label: 'Incidents by Submitted By',
+                  data: Object.values(incidentsBySubmittedBy),
+                  backgroundColor: '#2c7f86',
+                },
+              ],
+            }}
+          />
+        </div>
       </div>
     </main>
   )
