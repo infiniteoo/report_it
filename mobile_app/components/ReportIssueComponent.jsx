@@ -52,6 +52,7 @@ const ReportIssueComponent = () => {
     formData.append("barcodeData", barcodeData);
     formData.append("submittedBy", submittedBy);
     formData.append("location", locationData);
+    formData.append("resolved", resolved);
     formData.append("image", {
       uri: imageUri,
       type: "image/jpeg",
