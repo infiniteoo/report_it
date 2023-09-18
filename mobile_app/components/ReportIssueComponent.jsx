@@ -66,6 +66,13 @@ const ReportIssueComponent = () => {
         },
       });
       console.log("Upload success!", response);
+      // clear out all the fields
+      setImageUri(null);
+      setDescription("");
+      setBarcodeData("");
+      setSubmittedBy("");
+      setLocationData("");
+      setResolved("N");
     } catch (error) {
       console.error("Error uploading:", error);
     }

@@ -19,7 +19,6 @@ const BarcodeInput = ({ barcodeData, setBarcodeData }) => {
         }}
         autoFocus={true}
       />
-      {barcodeData !== "" && <Text>Scanned Barcode: {barcodeData}</Text>}
     </View>
   );
 };
