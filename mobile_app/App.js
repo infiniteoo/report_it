@@ -3,6 +3,10 @@ import { View, StyleSheet, Image, Button, Text } from 'react-native'
 import Onboarding from 'react-native-onboarding-swiper'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import CameraComponent from './components/CameraComponent'
+import DescriptionInput from './components/DescriptionInput'
+import ReportIssueComponent from './components/ReportIssueComponent'
+import axios from 'axios'
+import BarcodeInput from './components/BarcodeInput'
 
 const OnboardingScreens = ({ onDone }) => {
   return (
@@ -70,7 +74,11 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-      <CameraComponent />
+      {/*   <CameraComponent />
+      <DescriptionInput onChangeText={(text) => console.log(text)} /> */}
+      <ReportIssueComponent />
+      <BarcodeInput style={styles.barcodeInputStyle} />
+
       <Button
         title="Reset Onboarding"
         onPress={() => setShowOnboarding(true)}
@@ -82,9 +90,13 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'around',
+    justifyContent: 'start',
     alignItems: 'center',
     marginTop: '15%',
+  },
+  barcodeInputStyle: {
+    marginTop: 20,
+    color: 'red',
   },
 })
 

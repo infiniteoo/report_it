@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, View, Image, Text } from "react-native";
+import { TouchableOpacity, View, Text } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import { Camera } from "expo-camera";
@@ -54,20 +54,35 @@ const CameraComponent = () => {
   return (
     <View style={{ flex: 1, flexDirection: "column" }}>
       <View
-        style={{ flex: 0.5, justifyContent: "center", alignItems: "center" }}
+        style={{
+          flex: 0.5,
+          justifyContent: "center",
+          alignItems: "center",
+          borderRadius: 8, // This gives the outer View rounded edges
+          overflow: "hidden", // This is important for the child Camera component to adhere to the rounded edges
+        }}
       >
         <Camera
-          style={{ flex: 1, aspectRatio: 1, borderRadius: 8 }}
+          style={{ flex: 1, aspectRatio: 1 }}
           ref={(ref) => setCamera(ref)}
         />
       </View>
-      <View style={{ padding: 10, flex: 0.1 }}>
-        <Button title="Take Picture" onPress={takePicture} />
+      <View style={{ padding: 10, flex: 0.1, alignItems: "center" }}>
+        <TouchableOpacity
+          style={{
+            backgroundColor: "#2196F3", // Use any color of your choice
+            padding: 10,
+            borderRadius: 8,
+          }}
+          onPress={takePicture}
+        >
+          <Text style={{ color: "white" }}>Take Picture</Text>
+        </TouchableOpacity>
+        {imageUri && (
+          <Text style={{ marginTop: 5, fontSize: 20 }}>Image saved.</Text>
+          // Removing the Image component
+        )}
       </View>
-      {imageUri && (
-        <Text>Image captured!</Text>
-        // Removing the Image component
-      )}
     </View>
   );
 };
