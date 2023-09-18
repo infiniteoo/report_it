@@ -7,8 +7,11 @@ import {
   Title,
   Tooltip,
   Legend,
+  LineController,
+  LineElement,
+  PointElement,
 } from 'chart.js'
-import { Bar, Pie } from 'react-chartjs-2'
+import { Bar, Pie, Line } from 'react-chartjs-2'
 import { faker } from '@faker-js/faker'
 import axios from 'axios'
 import { PieController, ArcElement, Color } from 'chart.js'
@@ -22,6 +25,9 @@ ChartJS.register(
   Legend,
   PieController,
   ArcElement,
+  LineController,
+  LineElement,
+  PointElement,
 )
 
 const Data = () => {
@@ -59,6 +65,22 @@ const Data = () => {
 
   const openIncidents = reports.filter((r) => r.resolved === 'N').length
   const closedIncidents = reports.length - openIncidents
+
+  const incidentsByLocationOpen = reports.reduce((acc, report) => {
+    if (report.resolved === 'N') {
+      // check if the incident is open
+      acc[report.location] = (acc[report.location] || 0) + 1
+    }
+    return acc
+  }, {})
+
+  const incidentsByLocationClosed = reports.reduce((acc, report) => {
+    if (report.resolved !== 'N') {
+      // check if the incident is closed
+      acc[report.location] = (acc[report.location] || 0) + 1
+    }
+    return acc
+  }, {})
 
   const options = {
     responsive: true,
@@ -175,6 +197,51 @@ const Data = () => {
                   backgroundColor: '#2c7f86',
                 },
               ],
+            }}
+          />
+        </div>
+        <div className="w-1/4">
+          <Line
+            data={{
+              labels: Object.keys(incidentsByDate),
+              datasets: [
+                {
+                  label: 'Incidents Over Time',
+                  data: Object.values(incidentsByDate),
+                  borderColor: '#2c7f86',
+                  fill: false,
+                },
+              ],
+            }}
+          />
+        </div>
+        <div className="w-1/4">
+          <Bar
+            data={{
+              labels: Object.keys(incidentsByLocation),
+              datasets: [
+                {
+                  label: 'Open Incidents',
+                  data: Object.values(incidentsByLocationOpen),
+                  backgroundColor: '#2c7f86',
+                },
+                {
+                  label: 'Closed Incidents',
+                  data: Object.values(incidentsByLocationClosed),
+                  backgroundColor: 'red',
+                },
+              ],
+            }}
+            options={{
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  stacked: true,
+                },
+                x: {
+                  stacked: true,
+                },
+              },
             }}
           />
         </div>
