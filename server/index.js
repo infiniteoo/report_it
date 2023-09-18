@@ -57,8 +57,10 @@ app.post('/', upload.single('image'), (req, res) => {
   const report = new Reports({
     barcodeData: req.body.barcodeData,
     description: req.body.description,
+    submittedBy: req.body.submittedBy,
+    location: req.body.location,
     image: req.file.filename,
-    status: req.body.status || 'pending',
+    resolved: req.body.resolved || 'N',
     date: new Date(),
   })
   report.save().then((result) => {
@@ -84,6 +86,36 @@ app.get('/', (req, res) => {
     })
     .catch((err) => {
       console.log(err)
+    })
+})
+
+app.put('/resolve/:id', (req, res) => {
+  const suppliedID = req.params.id
+  console.log('hello from resolve/id : ', suppliedID)
+
+  // Search database for report with suppliedID and update resolved to true
+  Reports.findOneAndUpdate(
+    { _id: suppliedID },
+    { resolved: 'Y' }, // assuming resolved is a boolean field
+    { new: true },
+  )
+    .then((result) => {
+      if (!result) {
+        return res.status(404).json({
+          message: 'Report not found',
+        })
+      }
+
+      res.status(200).json({
+        message: 'Report successfully resolved',
+        updatedReport: result,
+      })
+    })
+    .catch((err) => {
+      console.error(err)
+      res.status(500).json({
+        message: 'Internal server error',
+      })
     })
 })
 

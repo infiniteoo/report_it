@@ -6,6 +6,9 @@ const reportSchema = new mongoose.Schema({
   image: String,
   status: String,
   date: Date,
+  location: String,
+  submittedBy: String,
+  resolved: String,
 })
 
 module.exports = mongoose.model('Reports', reportSchema)
