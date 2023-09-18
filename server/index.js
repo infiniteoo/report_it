@@ -3,6 +3,7 @@ const express = require('express')
 const multer = require('multer')
 const cors = require('cors')
 const mongoose = require('mongoose')
+const Reports = require('./models/reports.js') // Import the LabRequest model
 
 const app = express()
 
@@ -27,6 +28,18 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('public'))
 
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log('Connected to MongoDB')
+  })
+  .catch((error) => {
+    console.error('Error connecting to MongoDB:', error)
+  })
+
 // Set up storage with multer. This saves files to the local filesystem.
 // You can modify this to save to other locations such as cloud storage.
 const storage = multer.diskStorage({
@@ -40,20 +53,21 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 app.post('/', upload.single('image'), (req, res) => {
-  res.send('Data received!')
+  const report = new Reports({
+    barcodeData: req.body.barcodeData,
+    description: req.body.description,
+    image: req.file.filename,
+    status: req.body.status || 'pending',
+    date: req.body.date,
+  })
+  report.save().then((result) => {
+    console.log(result)
+    res.status(201).json({
+      message: 'Handling POST requests to /reports',
+      createdReport: report,
+    })
+  })
 })
-
-mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log('Connected to MongoDB')
-  })
-  .catch((error) => {
-    console.error('Error connecting to MongoDB:', error)
-  })
 
 const PORT = 7777
 app.listen(PORT, () => {
