@@ -27,6 +27,7 @@ app.use((req, res, next) => {
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('public'))
+app.use('/uploads', express.static('./server/uploads'))
 
 mongoose
   .connect(process.env.MONGODB_URI, {
@@ -58,7 +59,7 @@ app.post('/', upload.single('image'), (req, res) => {
     description: req.body.description,
     image: req.file.filename,
     status: req.body.status || 'pending',
-    date: req.body.date,
+    date: new Date(),
   })
   report.save().then((result) => {
     console.log(result)
@@ -72,7 +73,14 @@ app.post('/', upload.single('image'), (req, res) => {
 app.get('/', (req, res) => {
   Reports.find()
     .then((reports) => {
-      res.json(reports)
+      // Modify each report's image path to the public URL
+      const modifiedReports = reports.map((report) => {
+        return {
+          ...report._doc,
+          image: `http://localhost:${PORT}/uploads/${report.image}`,
+        }
+      })
+      res.json(modifiedReports)
     })
     .catch((err) => {
       console.log(err)
