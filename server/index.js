@@ -69,6 +69,16 @@ app.post('/', upload.single('image'), (req, res) => {
   })
 })
 
+app.get('/', (req, res) => {
+  Reports.find()
+    .then((reports) => {
+      res.json(reports)
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+})
+
 const PORT = 7777
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`)
