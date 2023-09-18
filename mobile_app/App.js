@@ -85,7 +85,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    marginTop: '15%',
+    marginTop: '5%',
+    width: '100%',
   },
   barcodeInputStyle: {
     marginTop: 20,
