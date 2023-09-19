@@ -13,6 +13,8 @@ function ReportItem({
   setModalImageUrl,
   isModalOpen,
   setIsModalOpen,
+  hideResolved,
+  setHideResolved,
 }) {
   const [selectedWorker, setSelectedWorker] = useState('')
   const [newWorker, setNewWorker] = useState('')
@@ -51,11 +53,7 @@ function ReportItem({
           response.data.result,
         )
         // Find the report in your local state and update it
-        const updatedReports = reports.map((report) =>
-          report._id === response.data.result._id
-            ? response.data.result
-            : report,
-        )
+
         setReports((prevReports) =>
           prevReports.map((report) =>
             report._id === response.data.result._id
@@ -111,41 +109,45 @@ function ReportItem({
             </button>
           )}
           {!report.assignedTo && report.resolved === 'N' && !isWorkerAssigned && (
-            <div className="absolute bottom-2 right-60 flex flex-col space-y-2">
-              <div className="flex space-x-2">
-                <select
-                  value={selectedWorker}
-                  onChange={(e) => setSelectedWorker(e.target.value)}
-                >
-                  {workers.map((worker) => (
-                    <option key={worker} value={worker}>
-                      {worker}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  className="text-white px-4 py-2 rounded"
-                  style={{ backgroundColor: '#2c7f86' }}
-                  onClick={() => handleAssignWorker(report._id)}
-                >
-                  Assign
-                </button>
-              </div>
+            <div className=" flex flex-row justify-between">
+              <div></div>
+              <div className="flex flex-row space-x-2">
+                <div>
+                  <select
+                    value={selectedWorker}
+                    onChange={(e) => setSelectedWorker(e.target.value)}
+                  >
+                    {workers.map((worker) => (
+                      <option key={worker} value={worker}>
+                        {worker}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    className="text-white px-4 py-2 rounded ml-2"
+                    style={{ backgroundColor: '#2c7f86' }}
+                    onClick={() => handleAssignWorker(report._id)}
+                  >
+                    Assign
+                  </button>
+                </div>
 
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  value={newWorker}
-                  onChange={(e) => setNewWorker(e.target.value)}
-                  placeholder="New Worker Name"
-                />
-                <button
-                  className="text-white px-4 py-2 rounded"
-                  style={{ backgroundColor: '#2c7f86' }}
-                  onClick={handleAddWorker}
-                >
-                  Add
-                </button>
+                <div className="flex space-x-2 pl-2">
+                  <input
+                    type="text"
+                    value={newWorker}
+                    onChange={(e) => setNewWorker(e.target.value)}
+                    placeholder="New Worker Name"
+                    className="pl-2"
+                  />
+                  <button
+                    className="text-white px-4 py-2 rounded"
+                    style={{ backgroundColor: '#2c7f86' }}
+                    onClick={handleAddWorker}
+                  >
+                    Add
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -161,7 +163,7 @@ export default function Home() {
   const [modalImageUrl, setModalImageUrl] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [reportsPerPage] = useState(10)
-  const [hideResolved, setHideResolved] = useState(false) // New state for hiding resolved
+  const [hideResolved, setHideResolved] = useState(true) // New state for hiding resolved
   const [workers, setWorkers] = useState([]) // List of workers
   const [selectedWorker, setSelectedWorker] = useState('') // Selected worker
   const [newWorker, setNewWorker] = useState('') // New worker name to add
@@ -186,6 +188,23 @@ export default function Home() {
     try {
       console.log('id: ', id)
       let result = await axios.put(`http://localhost:7777/resolve/${id}`)
+
+      // Update the specific report in the local state
+      let updatedReports = reports.map((report) =>
+        report._id === result.data.updatedReport._id
+          ? result.data.updatedReport
+          : report,
+      )
+
+      // If hideResolved is checked, filter out resolved reports
+      if (hideResolved) {
+        updatedReports = updatedReports.filter(
+          (report) => (report.resolved = 'N'),
+        )
+      }
+
+      setReports(updatedReports)
+
       console.log('result: ', result)
     } catch (error) {
       console.error('Error resolving incident:', error)
@@ -283,6 +302,8 @@ export default function Home() {
               setModalImageUrl={setModalImageUrl}
               isModalOpen={isModalOpen}
               setIsModalOpen={setIsModalOpen}
+              hideResolved={hideResolved}
+              setHideResolved={setHideResolved}
             />
           ))}
           {/*  {currentReports.map((report) => (
