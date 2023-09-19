@@ -143,6 +143,7 @@ app.put('/assign/:id', (req, res) => {
       }
 
       res.status(200).json({
+        result,
         message: 'Report successfully assigned',
         updatedReport: result,
       })

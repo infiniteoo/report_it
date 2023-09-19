@@ -2,7 +2,18 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
-function ReportItem({ report, handleResolveIncident, workers, setWorkers }) {
+function ReportItem({
+  report,
+  handleResolveIncident,
+  workers,
+  setWorkers,
+  reports,
+  setReports,
+  modalImageUrl,
+  setModalImageUrl,
+  isModalOpen,
+  setIsModalOpen,
+}) {
   const [selectedWorker, setSelectedWorker] = useState('')
   const [newWorker, setNewWorker] = useState('')
   const [isWorkerAssigned, setIsWorkerAssigned] = useState(false)
@@ -16,17 +27,46 @@ function ReportItem({ report, handleResolveIncident, workers, setWorkers }) {
     }
   }
 
+  const handleImageClick = (imageUrl) => {
+    setModalImageUrl(imageUrl)
+    setIsModalOpen(true)
+  }
+
   const handleAssignWorker = async (id) => {
     // Here, assign the worker to the task.
     // 'selectedWorker' contains the worker's name.
     // The ID of the incident is 'id'.
     console.log(`Assigning ${selectedWorker} to incident with ID: ${id}`)
+    console.log('reports in handleAssignWorker', reports)
     // Implement the actual assigning operation as needed.
-    await axios.put(`http://localhost:7777/assign/${id}`, {
-      id,
-      worker: selectedWorker,
-    })
+    try {
+      const response = await axios.put(`http://localhost:7777/assign/${id}`, {
+        id,
+        worker: selectedWorker,
+      })
 
+      if (response.data.result) {
+        console.log(
+          'response.data in handleAssignWorker: ',
+          response.data.result,
+        )
+        // Find the report in your local state and update it
+        const updatedReports = reports.map((report) =>
+          report._id === response.data.result._id
+            ? response.data.result
+            : report,
+        )
+        setReports((prevReports) =>
+          prevReports.map((report) =>
+            report._id === response.data.result._id
+              ? response.data.result
+              : report,
+          ),
+        )
+      }
+    } catch (error) {
+      console.error('Error assigning worker:', error)
+    }
     // Hide the dropdown and input fields
     setIsWorkerAssigned(true)
   }
@@ -61,56 +101,54 @@ function ReportItem({ report, handleResolveIncident, workers, setWorkers }) {
           <p className="text-gray-600">Assigned To: {report.assignedTo}</p>
           <p className="text-gray-600">Incident Location: {report.location}</p>
           <p className="text-gray-600">Incident Resolved? {report.resolved}</p>
-          {report.resolved === 'N' && !isWorkerAssigned && (
-            <>
-              <button
-                className="absolute bottom-2 right-2 text-white px-4 py-2 rounded"
-                style={{ backgroundColor: '#2c7f86' }}
-                onClick={() => handleResolveIncident(report._id)}
-              >
-                Resolve Incident
-              </button>
-
-              <div className="absolute bottom-2 right-60 flex flex-col space-y-2">
-                <div className="flex space-x-2">
-                  <select
-                    value={selectedWorker}
-                    onChange={(e) => setSelectedWorker(e.target.value)}
-                  >
-                    {workers.map((worker) => (
-                      <option key={worker} value={worker}>
-                        {worker}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    className="text-white px-4 py-2 rounded"
-                    style={{ backgroundColor: '#2c7f86' }}
-                    onClick={() => handleAssignWorker(report._id)}
-                  >
-                    Assign
-                  </button>
-                </div>
-
-                <div className="flex space-x-2">
-                  <input
-                    type="text"
-                    value={newWorker}
-                    onChange={(e) => setNewWorker(e.target.value)}
-                    placeholder="New Worker Name"
-                  />
-                  <button
-                    className="text-white px-4 py-2 rounded"
-                    style={{ backgroundColor: '#2c7f86' }}
-                    onClick={handleAddWorker}
-                  >
-                    Add
-                  </button>
-                </div>
-              </div>
-            </>
+          {report.assignedTo && report.resolved === 'N' && (
+            <button
+              className="absolute bottom-2 right-2 text-white px-4 py-2 rounded"
+              style={{ backgroundColor: '#2c7f86' }}
+              onClick={() => handleResolveIncident(report._id)}
+            >
+              Resolve Incident
+            </button>
           )}
-          {isWorkerAssigned && <p>Assigned to: {selectedWorker}</p>}
+          {!report.assignedTo && report.resolved === 'N' && !isWorkerAssigned && (
+            <div className="absolute bottom-2 right-60 flex flex-col space-y-2">
+              <div className="flex space-x-2">
+                <select
+                  value={selectedWorker}
+                  onChange={(e) => setSelectedWorker(e.target.value)}
+                >
+                  {workers.map((worker) => (
+                    <option key={worker} value={worker}>
+                      {worker}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  className="text-white px-4 py-2 rounded"
+                  style={{ backgroundColor: '#2c7f86' }}
+                  onClick={() => handleAssignWorker(report._id)}
+                >
+                  Assign
+                </button>
+              </div>
+
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={newWorker}
+                  onChange={(e) => setNewWorker(e.target.value)}
+                  placeholder="New Worker Name"
+                />
+                <button
+                  className="text-white px-4 py-2 rounded"
+                  style={{ backgroundColor: '#2c7f86' }}
+                  onClick={handleAddWorker}
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>
@@ -133,7 +171,7 @@ export default function Home() {
       try {
         const response = await axios.get('http://localhost:7777/')
         setReports(response.data)
-        console.log('reports: ', reports)
+
         const workersList = response.data.map((report) => report.submittedBy)
         setWorkers(Array.from(new Set(workersList)))
       } catch (error) {
@@ -143,11 +181,6 @@ export default function Home() {
 
     fetchReports()
   }, [])
-
-  const handleImageClick = (imageUrl) => {
-    setModalImageUrl(imageUrl)
-    setIsModalOpen(true)
-  }
 
   const handleResolveIncident = async (id) => {
     try {
@@ -244,6 +277,12 @@ export default function Home() {
               handleResolveIncident={handleResolveIncident}
               workers={workers}
               setWorkers={setWorkers}
+              reports={currentReports}
+              setReports={setReports}
+              modalImageUrl={modalImageUrl}
+              setModalImageUrl={setModalImageUrl}
+              isModalOpen={isModalOpen}
+              setIsModalOpen={setIsModalOpen}
             />
           ))}
           {/*  {currentReports.map((report) => (
