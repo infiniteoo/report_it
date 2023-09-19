@@ -92,12 +92,22 @@ function ReportItem({
             {report.description}
           </p>
           <p className="text-gray-600 text-md">
-            {new Date(report.date).toLocaleDateString()}
+            Submitted: {new Date(report.date).toLocaleDateString()}
+            {' @ '}
+            {new Date(report.date).toLocaleTimeString()}
           </p>
-          <p className="text-gray-600 font-medium">ID: {report._id}</p>
-          <p className="text-gray-600">Submitted By: {report.submittedBy}</p>
+          <p className="text-gray-600 font-medium text-xl">
+            LPN # {report.barcodeData}
+          </p>
+          <p className="text-gray-600">
+            Submitted By:{' '}
+            <span className="font-bold">{report.submittedBy}</span>
+          </p>
           <p className="text-gray-600">Assigned To: {report.assignedTo}</p>
-          <p className="text-gray-600">Incident Location: {report.location}</p>
+          <p className="text-gray-600">
+            Incident Location:{' '}
+            <span className="font-bold">{report.location}</span>
+          </p>
           <p className="text-gray-600">Incident Resolved? {report.resolved}</p>
           {report.assignedTo && report.resolved === 'N' && (
             <button
