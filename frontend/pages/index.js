@@ -2,6 +2,111 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
+function ReportItem({ report, handleResolveIncident, workers, setWorkers }) {
+  const [selectedWorker, setSelectedWorker] = useState('')
+  const [newWorker, setNewWorker] = useState('')
+
+  const handleAddWorker = () => {
+    if (newWorker) {
+      // ... Same code as before ...
+      setWorkers((prevWorkers) => [...prevWorkers, newWorker])
+      setSelectedWorker(newWorker)
+      setNewWorker('')
+    }
+  }
+
+  const handleAssignWorker = (id) => {
+    // Here, assign the worker to the task.
+    // 'selectedWorker' contains the worker's name.
+    // The ID of the incident is 'id'.
+    console.log(`Assigning ${selectedWorker} to incident with ID: ${id}`)
+    // Implement the actual assigning operation as needed.
+  }
+
+  return (
+    <>
+      <div
+        key={report._id}
+        className="flex flex-wrap justify-between my-6 p-6 bg-gradient-to-r from-gray-100 to-gray-300 rounded-lg shadow-lg border border-gray-400"
+      >
+        <img
+          src={report.image}
+          alt="Report Image"
+          className="w-36 h-36 object-cover rounded-md cursor-pointer mb-4 shadow-xl transform hover:scale-105 transition-transform"
+          style={{
+            boxShadow:
+              '4px 4px 10px rgba(0, 0, 0, 0.2), -4px -4px 10px rgba(255, 255, 255, 0.7)',
+          }}
+          onClick={() => handleImageClick(report.image)}
+        />
+        <div className="flex-1 ml-6 space-y-2 relative">
+          {' '}
+          {/* added relative here for absolute positioning of button */}
+          <p className="text-black text-lg font-semibold">
+            {report.description}
+          </p>
+          <p className="text-gray-600 text-md">
+            {new Date(report.date).toLocaleDateString()}
+          </p>
+          <p className="text-gray-600 font-medium">ID: {report._id}</p>
+          <p className="text-gray-600">Submitted By: {report.submittedBy}</p>
+          <p className="text-gray-600">Incident Location: {report.location}</p>
+          <p className="text-gray-600">Incident Resolved? {report.resolved}</p>
+          {report.resolved === 'N' && (
+            <>
+              <button
+                className="absolute bottom-2 right-2 text-white px-4 py-2 rounded"
+                style={{ backgroundColor: '#2c7f86' }}
+                onClick={() => handleResolveIncident(report._id)}
+              >
+                Resolve Incident
+              </button>
+
+              <div className="absolute bottom-2 right-60 flex flex-col space-y-2">
+                <div className="flex space-x-2">
+                  <select
+                    value={selectedWorker}
+                    onChange={(e) => setSelectedWorker(e.target.value)}
+                  >
+                    {workers.map((worker) => (
+                      <option key={worker} value={worker}>
+                        {worker}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    className="text-white px-4 py-2 rounded"
+                    style={{ backgroundColor: '#2c7f86' }}
+                    onClick={() => handleAssignWorker(report._id)}
+                  >
+                    Assign
+                  </button>
+                </div>
+
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={newWorker}
+                    onChange={(e) => setNewWorker(e.target.value)}
+                    placeholder="New Worker Name"
+                  />
+                  <button
+                    className="text-white px-4 py-2 rounded"
+                    style={{ backgroundColor: '#2c7f86' }}
+                    onClick={handleAddWorker}
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </>
+  )
+}
+
 export default function Home() {
   const [reports, setReports] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -29,25 +134,9 @@ export default function Home() {
     fetchReports()
   }, [])
 
-  const handleAddWorker = () => {
-    if (newWorker) {
-      setWorkers((prevWorkers) => [...prevWorkers, newWorker])
-      setSelectedWorker(newWorker)
-      setNewWorker('')
-    }
-  }
-
   const handleImageClick = (imageUrl) => {
     setModalImageUrl(imageUrl)
     setIsModalOpen(true)
-  }
-
-  const handleAssignWorker = (id) => {
-    // Here, assign the worker to the task.
-    // 'selectedWorker' contains the worker's name.
-    // The ID of the incident is 'id'.
-    console.log(`Assigning ${selectedWorker} to incident with ID: ${id}`)
-    // Implement the actual assigning operation as needed.
   }
 
   const handleResolveIncident = async (id) => {
@@ -139,6 +228,15 @@ export default function Home() {
 
         <div className="w-full">
           {currentReports.map((report) => (
+            <ReportItem
+              key={report._id}
+              report={report}
+              handleResolveIncident={handleResolveIncident}
+              workers={workers}
+              setWorkers={setWorkers}
+            />
+          ))}
+          {/*  {currentReports.map((report) => (
             <div
               key={report._id}
               className="flex flex-wrap justify-between my-6 p-6 bg-gradient-to-r from-gray-100 to-gray-300 rounded-lg shadow-lg border border-gray-400"
@@ -155,7 +253,6 @@ export default function Home() {
               />
               <div className="flex-1 ml-6 space-y-2 relative">
                 {' '}
-                {/* added relative here for absolute positioning of button */}
                 <p className="text-black text-lg font-semibold">
                   {report.description}
                 </p>
@@ -172,7 +269,6 @@ export default function Home() {
                 <p className="text-gray-600">
                   Incident Resolved? {report.resolved}
                 </p>
-                {/* This button is positioned absolutely to the bottom right of its relative parent */}
                 {report.resolved === 'N' && (
                   <>
                     <button
@@ -224,7 +320,7 @@ export default function Home() {
                 )}
               </div>
             </div>
-          ))}
+          ))} */}
           <div className="mt-8">
             <button
               className="px-4 py-2 border rounded-l text-white"
