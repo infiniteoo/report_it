@@ -9,6 +9,9 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1)
   const [reportsPerPage] = useState(10)
   const [hideResolved, setHideResolved] = useState(false) // New state for hiding resolved
+  const [workers, setWorkers] = useState([]) // List of workers
+  const [selectedWorker, setSelectedWorker] = useState('') // Selected worker
+  const [newWorker, setNewWorker] = useState('') // New worker name to add
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -16,6 +19,8 @@ export default function Home() {
         const response = await axios.get('http://localhost:7777/')
         setReports(response.data)
         console.log('reports: ', reports)
+        const workersList = response.data.map((report) => report.submittedBy)
+        setWorkers(Array.from(new Set(workersList)))
       } catch (error) {
         console.error('Error fetching reports:', error)
       }
@@ -24,9 +29,25 @@ export default function Home() {
     fetchReports()
   }, [])
 
+  const handleAddWorker = () => {
+    if (newWorker) {
+      setWorkers((prevWorkers) => [...prevWorkers, newWorker])
+      setSelectedWorker(newWorker)
+      setNewWorker('')
+    }
+  }
+
   const handleImageClick = (imageUrl) => {
     setModalImageUrl(imageUrl)
     setIsModalOpen(true)
+  }
+
+  const handleAssignWorker = (id) => {
+    // Here, assign the worker to the task.
+    // 'selectedWorker' contains the worker's name.
+    // The ID of the incident is 'id'.
+    console.log(`Assigning ${selectedWorker} to incident with ID: ${id}`)
+    // Implement the actual assigning operation as needed.
   }
 
   const handleResolveIncident = async (id) => {
@@ -153,13 +174,53 @@ export default function Home() {
                 </p>
                 {/* This button is positioned absolutely to the bottom right of its relative parent */}
                 {report.resolved === 'N' && (
-                  <button
-                    className="absolute bottom-2 right-2  text-white px-4 py-2 rounded"
-                    style={{ backgroundColor: '#2c7f86' }}
-                    onClick={() => handleResolveIncident(report._id)}
-                  >
-                    Resolve Incident
-                  </button>
+                  <>
+                    <button
+                      className="absolute bottom-2 right-2 text-white px-4 py-2 rounded"
+                      style={{ backgroundColor: '#2c7f86' }}
+                      onClick={() => handleResolveIncident(report._id)}
+                    >
+                      Resolve Incident
+                    </button>
+
+                    <div className="absolute bottom-2 right-60 flex flex-col space-y-2">
+                      <div className="flex space-x-2">
+                        <select
+                          value={selectedWorker}
+                          onChange={(e) => setSelectedWorker(e.target.value)}
+                        >
+                          {workers.map((worker) => (
+                            <option key={worker} value={worker}>
+                              {worker}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          className="text-white px-4 py-2 rounded"
+                          style={{ backgroundColor: '#2c7f86' }}
+                          onClick={() => handleAssignWorker(report._id)}
+                        >
+                          Assign
+                        </button>
+                      </div>
+
+                      <div className="flex space-x-2">
+                        <input
+                          type="text"
+                          value={newWorker}
+                          onChange={(e) => setNewWorker(e.target.value)}
+                          placeholder="New Worker Name"
+                        />
+                        <button
+                          className="text-white px-4 py-2 rounded"
+                          style={{ backgroundColor: '#2c7f86' }}
+                          onClick={handleAddWorker}
+                        >
+                          Add
+                        </button>
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
