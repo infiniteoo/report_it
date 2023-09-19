@@ -74,6 +74,7 @@ app.post('/', upload.single('image'), (req, res) => {
 
 app.get('/', (req, res) => {
   Reports.find()
+    .sort({ date: -1 }) // Sorting by date in descending order
     .then((reports) => {
       // Modify each report's image path to the public URL
       const modifiedReports = reports.map((report) => {
