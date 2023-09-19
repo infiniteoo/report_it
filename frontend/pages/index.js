@@ -6,6 +6,8 @@ export default function Home() {
   const [reports, setReports] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalImageUrl, setModalImageUrl] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [reportsPerPage] = useState(10)
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -39,6 +41,10 @@ export default function Home() {
   const closeModal = () => {
     setIsModalOpen(false)
   }
+
+  const indexOfLastReport = currentPage * reportsPerPage
+  const indexOfFirstReport = indexOfLastReport - reportsPerPage
+  const currentReports = reports.slice(indexOfFirstReport, indexOfLastReport)
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -81,7 +87,7 @@ export default function Home() {
         </header>
 
         <div className="w-full">
-          {reports.map((report) => (
+          {currentReports.map((report) => (
             <div
               key={report._id}
               className="flex flex-wrap justify-between my-6 p-6 bg-gradient-to-r from-gray-100 to-gray-300 rounded-lg shadow-lg border border-gray-400"
@@ -128,6 +134,35 @@ export default function Home() {
               </div>
             </div>
           ))}
+          <div className="mt-8">
+            <button
+              className="px-4 py-2 border rounded-l text-white"
+              onClick={() =>
+                setCurrentPage(currentPage > 1 ? currentPage - 1 : 1)
+              }
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            <span className="px-4 py-2 border-t border-b text-white">
+              {currentPage}
+            </span>
+            <button
+              className="px-4 py-2 border rounded-r text-white"
+              onClick={() =>
+                setCurrentPage(
+                  currentPage < Math.ceil(reports.length / reportsPerPage)
+                    ? currentPage + 1
+                    : currentPage,
+                )
+              }
+              disabled={
+                currentPage === Math.ceil(reports.length / reportsPerPage)
+              }
+            >
+              Next
+            </button>
+          </div>
         </div>
         {isModalOpen && (
           <div
