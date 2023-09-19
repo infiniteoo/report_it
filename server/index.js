@@ -124,6 +124,37 @@ app.put('/resolve/:id', (req, res) => {
     })
 })
 
+app.put('/assign/:id', (req, res) => {
+  console.log('hello from assign:id')
+  const suppliedID = req.params.id
+  const assignedTo = req.body.worker
+
+  // Search database for report with suppliedID and update assignedTo to assignedTo
+  Reports.findOneAndUpdate(
+    { _id: suppliedID },
+    { assignedTo: assignedTo },
+    { new: true },
+  )
+    .then((result) => {
+      if (!result) {
+        return res.status(404).json({
+          message: 'Report not found',
+        })
+      }
+
+      res.status(200).json({
+        message: 'Report successfully assigned',
+        updatedReport: result,
+      })
+    })
+    .catch((err) => {
+      console.error(err)
+      res.status(500).json({
+        message: 'Internal server error',
+      })
+    })
+})
+
 const PORT = 7777
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`)

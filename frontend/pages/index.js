@@ -5,6 +5,7 @@ import axios from 'axios'
 function ReportItem({ report, handleResolveIncident, workers, setWorkers }) {
   const [selectedWorker, setSelectedWorker] = useState('')
   const [newWorker, setNewWorker] = useState('')
+  const [isWorkerAssigned, setIsWorkerAssigned] = useState(false)
 
   const handleAddWorker = () => {
     if (newWorker) {
@@ -15,12 +16,19 @@ function ReportItem({ report, handleResolveIncident, workers, setWorkers }) {
     }
   }
 
-  const handleAssignWorker = (id) => {
+  const handleAssignWorker = async (id) => {
     // Here, assign the worker to the task.
     // 'selectedWorker' contains the worker's name.
     // The ID of the incident is 'id'.
     console.log(`Assigning ${selectedWorker} to incident with ID: ${id}`)
     // Implement the actual assigning operation as needed.
+    await axios.put(`http://localhost:7777/assign/${id}`, {
+      id,
+      worker: selectedWorker,
+    })
+
+    // Hide the dropdown and input fields
+    setIsWorkerAssigned(true)
   }
 
   return (
@@ -50,9 +58,10 @@ function ReportItem({ report, handleResolveIncident, workers, setWorkers }) {
           </p>
           <p className="text-gray-600 font-medium">ID: {report._id}</p>
           <p className="text-gray-600">Submitted By: {report.submittedBy}</p>
+          <p className="text-gray-600">Assigned To: {report.assignedTo}</p>
           <p className="text-gray-600">Incident Location: {report.location}</p>
           <p className="text-gray-600">Incident Resolved? {report.resolved}</p>
-          {report.resolved === 'N' && (
+          {report.resolved === 'N' && !isWorkerAssigned && (
             <>
               <button
                 className="absolute bottom-2 right-2 text-white px-4 py-2 rounded"
@@ -101,6 +110,7 @@ function ReportItem({ report, handleResolveIncident, workers, setWorkers }) {
               </div>
             </>
           )}
+          {isWorkerAssigned && <p>Assigned to: {selectedWorker}</p>}
         </div>
       </div>
     </>
