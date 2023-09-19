@@ -8,6 +8,7 @@ export default function Home() {
   const [modalImageUrl, setModalImageUrl] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [reportsPerPage] = useState(10)
+  const [hideResolved, setHideResolved] = useState(false) // New state for hiding resolved
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -42,9 +43,15 @@ export default function Home() {
     setIsModalOpen(false)
   }
 
+  const filteredReports = hideResolved
+    ? reports.filter((report) => report.resolved !== 'Y')
+    : reports
   const indexOfLastReport = currentPage * reportsPerPage
   const indexOfFirstReport = indexOfLastReport - reportsPerPage
-  const currentReports = reports.slice(indexOfFirstReport, indexOfLastReport)
+  const currentReports = filteredReports.slice(
+    indexOfFirstReport,
+    indexOfLastReport,
+  )
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -62,7 +69,7 @@ export default function Home() {
           zIndex: -1, // this makes sure it sits behind your content
         }}
       ></div>
-      <main className="flex flex-col items-center p-24 w-full overflow-y-auto">
+      <main className="flex flex-col p-24 w-full overflow-y-auto">
         {/* Header Toolbar with gradient */}
         <header className="w-full p-4 mb-12 shadow-lg flex justify-between items-center bg-gradient-to-r from-gray-100 to-gray-300 rounded-xl border border-gray-400">
           <img
@@ -85,6 +92,29 @@ export default function Home() {
             </a>
           </div>
         </header>
+        <div className="mb-4 flex items-center justify-end">
+          <input
+            type="checkbox"
+            id="hideResolved"
+            className="hidden"
+            checked={hideResolved}
+            onChange={() => setHideResolved(!hideResolved)}
+          />
+          <label
+            htmlFor="hideResolved"
+            className="flex items-center cursor-pointer"
+          >
+            <span className="mr-2 h-5 w-5 block border-2 border-gray-400 rounded-sm relative">
+              {hideResolved && (
+                <span
+                  className={`absolute block bg-2c7f86 w-full h-full rounded-sm checkbox-checked-border`}
+                  style={{ backgroundColor: '#2c7f86' }}
+                ></span>
+              )}
+            </span>
+            <span className="text-white">Hide Resolved</span>
+          </label>
+        </div>
 
         <div className="w-full">
           {currentReports.map((report) => (
