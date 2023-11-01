@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from "react";
+import supabase from "../../supabase";
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,11 +16,11 @@ import {
   RadarController,
   RadialLinearScale,
   HorizontalBar,
-} from 'chart.js'
-import { Bar, Pie, Line, Doughnut, Radar, Bubble } from 'react-chartjs-2'
-import { faker } from '@faker-js/faker'
-import axios from 'axios'
-import { PieController, ArcElement, Color } from 'chart.js'
+} from "chart.js";
+import { Bar, Pie, Line, Doughnut, Radar, Bubble } from "react-chartjs-2";
+import { faker } from "@faker-js/faker";
+
+import { PieController, ArcElement, Color } from "chart.js";
 
 ChartJS.register(
   CategoryScale,
@@ -34,99 +36,97 @@ ChartJS.register(
   PointElement,
   DoughnutController,
   RadarController,
-  RadialLinearScale,
-)
+  RadialLinearScale
+);
 
 const Data = () => {
-  const [reports, setReports] = useState([])
+  const [reports, setReports] = useState([]);
 
   useEffect(() => {
     const fetchReports = async () => {
-      try {
-        const response = await axios.get('http://localhost:7777/')
-        setReports(response.data)
-      } catch (error) {
-        console.error('Error fetching reports:', error)
-      }
-    }
+      const { data, error } = await supabase.from("incidents").select("*");
 
-    fetchReports()
-  }, [])
+      if (error) console.log("error", error);
+      if (data) setReports(data);
+    };
+
+    fetchReports();
+  }, []);
 
   const incidentsByDate = reports.reduce((acc, report) => {
-    const date = new Date(report.date).toLocaleDateString()
-    acc[date] = (acc[date] || 0) + 1
-    console.log('incidents by date, acc', acc)
-    return acc
-  }, {})
+    const date = new Date(report.date).toLocaleDateString();
+    acc[date] = (acc[date] || 0) + 1;
+    console.log("incidents by date, acc", acc);
+    return acc;
+  }, {});
 
   const incidentsByLocation = reports.reduce((acc, report) => {
-    acc[report.location] = (acc[report.location] || 0) + 1
-    return acc
-  }, {})
+    acc[report.location] = (acc[report.location] || 0) + 1;
+    return acc;
+  }, {});
 
   const incidentsBySubmittedBy = reports.reduce((acc, report) => {
-    acc[report.submittedBy] = (acc[report.submittedBy] || 0) + 1
-    return acc
-  }, {})
+    acc[report.submittedBy] = (acc[report.submittedBy] || 0) + 1;
+    return acc;
+  }, {});
 
-  const openIncidents = reports.filter((r) => r.resolved === 'N').length
-  const closedIncidents = reports.length - openIncidents
+  const openIncidents = reports.filter((r) => r.resolved === "N").length;
+  const closedIncidents = reports.length - openIncidents;
 
   const incidentsByLocationOpen = reports.reduce((acc, report) => {
-    if (report.resolved === 'N') {
+    if (report.resolved === "N") {
       // check if the incident is open
-      acc[report.location] = (acc[report.location] || 0) + 1
+      acc[report.location] = (acc[report.location] || 0) + 1;
     }
-    return acc
-  }, {})
+    return acc;
+  }, {});
 
   const incidentsByLocationClosed = reports.reduce((acc, report) => {
-    if (report.resolved !== 'N') {
+    if (report.resolved !== "N") {
       // check if the incident is closed
-      acc[report.location] = (acc[report.location] || 0) + 1
+      acc[report.location] = (acc[report.location] || 0) + 1;
     }
-    return acc
-  }, {})
+    return acc;
+  }, {});
 
   const options = {
     responsive: true,
     plugins: {
       legend: {
-        position: 'top',
+        position: "top",
       },
       title: {
         display: true,
-        text: 'Chart.js Bar Chart',
+        text: "Chart.js Bar Chart",
       },
     },
-  }
+  };
 
   const labels = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-  ]
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+  ];
 
   const data = {
     labels,
     datasets: [
       {
-        label: 'Dataset 1',
+        label: "Dataset 1",
         data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
-        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
       },
       {
-        label: 'Dataset 2',
+        label: "Dataset 2",
         data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
+        backgroundColor: "rgba(53, 162, 235, 0.5)",
       },
     ],
-  }
+  };
 
   return (
     <main className="flex min-h-screen flex-col items-center p-24 bg-gray-200">
@@ -158,9 +158,9 @@ const Data = () => {
               labels: Object.keys(incidentsByDate),
               datasets: [
                 {
-                  label: 'Incidents by Date',
+                  label: "Incidents by Date",
                   data: Object.values(incidentsByDate),
-                  backgroundColor: '#2c7f86',
+                  backgroundColor: "#2c7f86",
                 },
               ],
             }}
@@ -169,11 +169,11 @@ const Data = () => {
         <div className="w-1/4">
           <Pie
             data={{
-              labels: ['Open', 'Closed'],
+              labels: ["Open", "Closed"],
               datasets: [
                 {
                   data: [openIncidents, closedIncidents],
-                  backgroundColor: ['#2c7f86', 'red'],
+                  backgroundColor: ["#2c7f86", "red"],
                 },
               ],
             }}
@@ -185,9 +185,9 @@ const Data = () => {
               labels: Object.keys(incidentsByLocation),
               datasets: [
                 {
-                  label: 'Incidents by Location',
+                  label: "Incidents by Location",
                   data: Object.values(incidentsByLocation),
-                  backgroundColor: '#2c7f86',
+                  backgroundColor: "#2c7f86",
                 },
               ],
             }}
@@ -199,9 +199,9 @@ const Data = () => {
               labels: Object.keys(incidentsBySubmittedBy),
               datasets: [
                 {
-                  label: 'Incidents by Submitted By',
+                  label: "Incidents by Submitted By",
                   data: Object.values(incidentsBySubmittedBy),
-                  backgroundColor: '#2c7f86',
+                  backgroundColor: "#2c7f86",
                 },
               ],
             }}
@@ -213,9 +213,9 @@ const Data = () => {
               labels: Object.keys(incidentsByDate),
               datasets: [
                 {
-                  label: 'Incidents Over Time',
+                  label: "Incidents Over Time",
                   data: Object.values(incidentsByDate),
-                  borderColor: '#2c7f86',
+                  borderColor: "#2c7f86",
                   fill: false,
                 },
               ],
@@ -228,14 +228,14 @@ const Data = () => {
               labels: Object.keys(incidentsByLocation),
               datasets: [
                 {
-                  label: 'Open Incidents',
+                  label: "Open Incidents",
                   data: Object.values(incidentsByLocationOpen),
-                  backgroundColor: '#2c7f86',
+                  backgroundColor: "#2c7f86",
                 },
                 {
-                  label: 'Closed Incidents',
+                  label: "Closed Incidents",
                   data: Object.values(incidentsByLocationClosed),
-                  backgroundColor: 'red',
+                  backgroundColor: "red",
                 },
               ],
             }}
@@ -260,11 +260,11 @@ const Data = () => {
                 {
                   data: Object.values(incidentsBySubmittedBy),
                   backgroundColor: [
-                    '#2c7f86',
-                    'red',
-                    '#f6e58d',
-                    '#ffbe76',
-                    '#ff7979',
+                    "#2c7f86",
+                    "red",
+                    "#f6e58d",
+                    "#ffbe76",
+                    "#ff7979",
                   ],
                 },
               ],
@@ -274,19 +274,19 @@ const Data = () => {
         <div className="w-1/4">
           <Radar
             data={{
-              labels: ['Location A', 'Location B', 'Location C'],
+              labels: ["Location A", "Location B", "Location C"],
               datasets: [
                 {
-                  label: 'Open Incidents',
+                  label: "Open Incidents",
                   data: [5, 10, 15],
-                  borderColor: '#2c7f86',
-                  backgroundColor: 'rgba(44, 127, 134, 0.2)',
+                  borderColor: "#2c7f86",
+                  backgroundColor: "rgba(44, 127, 134, 0.2)",
                 },
                 {
-                  label: 'Closed Incidents',
+                  label: "Closed Incidents",
                   data: [3, 7, 20],
-                  borderColor: 'red',
-                  backgroundColor: 'rgba(255, 0, 0, 0.2)',
+                  borderColor: "red",
+                  backgroundColor: "rgba(255, 0, 0, 0.2)",
                 },
               ],
             }}
@@ -298,14 +298,14 @@ const Data = () => {
               labels: Object.keys(incidentsByLocation),
               datasets: [
                 {
-                  label: 'Incidents by Location',
+                  label: "Incidents by Location",
                   data: Object.values(incidentsByLocation),
-                  backgroundColor: ['#2c7f86'],
+                  backgroundColor: ["#2c7f86"],
                 },
               ],
             }}
             options={{
-              indexAxis: 'y', // This makes it horizontal
+              indexAxis: "y", // This makes it horizontal
             }}
           />
         </div>
@@ -314,13 +314,13 @@ const Data = () => {
             data={{
               datasets: [
                 {
-                  label: 'Severity on Dates',
+                  label: "Severity on Dates",
                   data: [
-                    { x: '1/1/2023', y: 7, r: 10 },
-                    { x: '1/2/2023', y: 5, r: 15 },
+                    { x: "1/1/2023", y: 7, r: 10 },
+                    { x: "1/2/2023", y: 5, r: 15 },
                     // ... more data points
                   ],
-                  backgroundColor: '#2c7f86',
+                  backgroundColor: "#2c7f86",
                 },
               ],
             }}
@@ -328,7 +328,7 @@ const Data = () => {
         </div>
       </div>
     </main>
-  )
-}
+  );
+};
 
-export default Data
+export default Data;

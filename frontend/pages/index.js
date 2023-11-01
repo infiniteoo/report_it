@@ -1,6 +1,6 @@
-'use client'
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+"use client";
+import React, { useState, useEffect } from "react";
+import supabase from "../../supabase";
 
 function ReportItem({
   report,
@@ -16,58 +16,48 @@ function ReportItem({
   hideResolved,
   setHideResolved,
 }) {
-  const [selectedWorker, setSelectedWorker] = useState('')
-  const [newWorker, setNewWorker] = useState('')
-  const [isWorkerAssigned, setIsWorkerAssigned] = useState(false)
+  const [selectedWorker, setSelectedWorker] = useState("");
+  const [newWorker, setNewWorker] = useState("");
+  const [isWorkerAssigned, setIsWorkerAssigned] = useState(false);
 
   const handleAddWorker = () => {
     if (newWorker) {
       // ... Same code as before ...
-      setWorkers((prevWorkers) => [...prevWorkers, newWorker])
-      setSelectedWorker(newWorker)
-      setNewWorker('')
+      setWorkers((prevWorkers) => [...prevWorkers, newWorker]);
+      setSelectedWorker(newWorker);
+      setNewWorker("");
     }
-  }
+  };
 
   const handleImageClick = (imageUrl) => {
-    setModalImageUrl(imageUrl)
-    setIsModalOpen(true)
-  }
+    setModalImageUrl(imageUrl);
+    setIsModalOpen(true);
+  };
 
   const handleAssignWorker = async (id) => {
-    // Here, assign the worker to the task.
-    // 'selectedWorker' contains the worker's name.
-    // The ID of the incident is 'id'.
-    console.log(`Assigning ${selectedWorker} to incident with ID: ${id}`)
-    console.log('reports in handleAssignWorker', reports)
-    // Implement the actual assigning operation as needed.
-    try {
-      const response = await axios.put(`http://localhost:7777/assign/${id}`, {
-        id,
-        worker: selectedWorker,
-      })
+    console.log(`Assigning ${selectedWorker} to incident with ID: ${id}`);
+    console.log("reports in handleAssignWorker", reports);
 
-      if (response.data.result) {
-        console.log(
-          'response.data in handleAssignWorker: ',
-          response.data.result,
-        )
-        // Find the report in your local state and update it
+    const { data, error } = await supabase
+      .from("incidents")
+      .upsert([{ id, assignedTo: selectedWorker }])
+      .select();
 
-        setReports((prevReports) =>
-          prevReports.map((report) =>
-            report._id === response.data.result._id
-              ? response.data.result
-              : report,
-          ),
+    if (data) {
+      console.log("Data in handleAssignWorker: ", data);
+      // Find the incident in your local state and update it
+      setReports((prevReports) =>
+        prevReports.map((incident) =>
+          incident.id === data[0].id ? data[0] : incident
         )
-      }
-    } catch (error) {
-      console.error('Error assigning worker:', error)
+      );
+    } else {
+      console.error("Error assigning worker:", error);
     }
+
     // Hide the dropdown and input fields
-    setIsWorkerAssigned(true)
-  }
+    setIsWorkerAssigned(true);
+  };
 
   return (
     <>
@@ -81,169 +71,186 @@ function ReportItem({
           className="w-36 h-36 object-cover rounded-md cursor-pointer mb-4 shadow-xl transform hover:scale-105 transition-transform"
           style={{
             boxShadow:
-              '4px 4px 10px rgba(0, 0, 0, 0.2), -4px -4px 10px rgba(255, 255, 255, 0.7)',
+              "4px 4px 10px rgba(0, 0, 0, 0.2), -4px -4px 10px rgba(255, 255, 255, 0.7)",
           }}
           onClick={() => handleImageClick(report.image)}
         />
         <div className="flex-1 ml-6 space-y-2 relative">
-          {' '}
+          {" "}
           {/* added relative here for absolute positioning of button */}
           <p className="text-black text-lg font-semibold">
             {report.description}
           </p>
           <p className="text-gray-600 text-md">
             Submitted: {new Date(report.date).toLocaleDateString()}
-            {' @ '}
+            {" @ "}
             {new Date(report.date).toLocaleTimeString()}
           </p>
           <p className="text-gray-600 font-medium text-xl">
             LPN # {report.barcodeData}
           </p>
           <p className="text-gray-600">
-            Submitted By:{' '}
+            Submitted By:{" "}
             <span className="font-bold">{report.submittedBy}</span>
           </p>
           <p className="text-gray-600">Assigned To: {report.assignedTo}</p>
           <p className="text-gray-600">
-            Incident Location:{' '}
+            Incident Location:{" "}
             <span className="font-bold">{report.location}</span>
           </p>
           <p className="text-gray-600">Incident Resolved? {report.resolved}</p>
-          {report.assignedTo && report.resolved === 'N' && (
+          {report.assignedTo && report.resolved === "N" && (
             <button
               className="absolute bottom-2 right-2 text-white px-4 py-2 rounded"
-              style={{ backgroundColor: '#2c7f86' }}
-              onClick={() => handleResolveIncident(report._id)}
+              style={{ backgroundColor: "#2c7f86" }}
+              onClick={() => handleResolveIncident(report.id)}
             >
               Resolve Incident
             </button>
           )}
-          {!report.assignedTo && report.resolved === 'N' && !isWorkerAssigned && (
-            <div className=" flex flex-row justify-between">
-              <div></div>
-              <div className="flex flex-row space-x-2">
-                <div>
-                  <select
-                    value={selectedWorker}
-                    onChange={(e) => setSelectedWorker(e.target.value)}
-                  >
-                    {workers.map((worker) => (
-                      <option key={worker} value={worker}>
-                        {worker}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    className="text-white px-4 py-2 rounded ml-2"
-                    style={{ backgroundColor: '#2c7f86' }}
-                    onClick={() => handleAssignWorker(report._id)}
-                  >
-                    Assign
-                  </button>
-                </div>
+          {!report.assignedTo &&
+            report.resolved === "N" &&
+            !isWorkerAssigned && (
+              <div className=" flex flex-row justify-between">
+                <div></div>
+                <div className="flex flex-row space-x-2">
+                  <div>
+                    <select
+                      value={selectedWorker}
+                      onChange={(e) => setSelectedWorker(e.target.value)}
+                    >
+                      {workers.map((worker) => (
+                        <option key={worker} value={worker}>
+                          {worker}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      className="text-white px-4 py-2 rounded ml-2"
+                      style={{ backgroundColor: "#2c7f86" }}
+                      onClick={() => handleAssignWorker(report.id)}
+                    >
+                      Assign
+                    </button>
+                  </div>
 
-                <div className="flex space-x-2 pl-2">
-                  <input
-                    type="text"
-                    value={newWorker}
-                    onChange={(e) => setNewWorker(e.target.value)}
-                    placeholder="New Worker Name"
-                    className="pl-2"
-                  />
-                  <button
-                    className="text-white px-4 py-2 rounded"
-                    style={{ backgroundColor: '#2c7f86' }}
-                    onClick={handleAddWorker}
-                  >
-                    Add
-                  </button>
+                  <div className="flex space-x-2 pl-2">
+                    <input
+                      type="text"
+                      value={newWorker}
+                      onChange={(e) => setNewWorker(e.target.value)}
+                      placeholder="New Worker Name"
+                      className="pl-2"
+                    />
+                    <button
+                      className="text-white px-4 py-2 rounded"
+                      style={{ backgroundColor: "#2c7f86" }}
+                      onClick={handleAddWorker}
+                    >
+                      Add
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
       </div>
     </>
-  )
+  );
 }
 
 export default function Home() {
-  const [reports, setReports] = useState([])
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [modalImageUrl, setModalImageUrl] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [reportsPerPage] = useState(10)
-  const [hideResolved, setHideResolved] = useState(true) // New state for hiding resolved
-  const [workers, setWorkers] = useState([]) // List of workers
-  const [selectedWorker, setSelectedWorker] = useState('') // Selected worker
-  const [newWorker, setNewWorker] = useState('') // New worker name to add
+  const [reports, setReports] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalImageUrl, setModalImageUrl] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [reportsPerPage] = useState(10);
+  const [hideResolved, setHideResolved] = useState(true); // New state for hiding resolved
+  const [workers, setWorkers] = useState([]); // List of workers
+  const [selectedWorker, setSelectedWorker] = useState(""); // Selected worker
+  const [newWorker, setNewWorker] = useState(""); // New worker name to add
 
   useEffect(() => {
     const fetchReports = async () => {
-      try {
-        const response = await axios.get('http://localhost:7777/')
-        setReports(response.data)
+      const { data, error } = await supabase.from("incidents").select("*");
 
-        const workersList = response.data.map((report) => report.submittedBy)
-        setWorkers(Array.from(new Set(workersList)))
-      } catch (error) {
-        console.error('Error fetching reports:', error)
+      if (!error) {
+        setReports(data);
+
+        // Extract the list of workers
+        const workersList = data.map((report) => report.submittedBy);
+        setWorkers(Array.from(new Set(workersList)));
+      } else {
+        console.error("Error fetching reports:", error);
       }
-    }
+    };
 
-    fetchReports()
-  }, [])
+    fetchReports();
+  }, []);
 
   const handleResolveIncident = async (id) => {
     try {
-      console.log('id: ', id)
-      let result = await axios.put(`http://localhost:7777/resolve/${id}`)
+      console.log("id: ", id);
 
-      // Update the specific report in the local state
-      let updatedReports = reports.map((report) =>
-        report._id === result.data.updatedReport._id
-          ? result.data.updatedReport
-          : report,
-      )
+      const { data, error } = await supabase
+        .from("incidents")
+        .upsert([
+          {
+            id: id,
+            resolved: "Y",
+          },
+        ])
+        .select();
+      if (!error) {
+        // Update the specific report in the local state
+        const updatedReports = reports.map((report) =>
+          report.id === id
+            ? {
+                ...report,
+                resolved: "Y", // Assuming 'Y' represents resolved
+              }
+            : report
+        );
 
-      // If hideResolved is checked, filter out resolved reports
-      if (hideResolved) {
-        updatedReports = updatedReports.filter(
-          (report) => (report.resolved = 'N'),
-        )
+        // If hideResolved is checked, filter out resolved reports
+        const filteredReports = hideResolved
+          ? updatedReports.filter((report) => report.resolved === "N")
+          : updatedReports;
+
+        setReports(filteredReports);
+
+        console.log("result: ", data);
+      } else {
+        console.error("Error resolving incident:", error);
       }
-
-      setReports(updatedReports)
-
-      console.log('result: ', result)
     } catch (error) {
-      console.error('Error resolving incident:', error)
+      console.error("Error resolving incident:", error);
     }
-  }
+  };
 
   const closeModal = () => {
-    setIsModalOpen(false)
-  }
+    setIsModalOpen(false);
+  };
 
   const filteredReports = hideResolved
-    ? reports.filter((report) => report.resolved !== 'Y')
-    : reports
-  const indexOfLastReport = currentPage * reportsPerPage
-  const indexOfFirstReport = indexOfLastReport - reportsPerPage
+    ? reports.filter((report) => report.resolved !== "Y")
+    : reports;
+  const indexOfLastReport = currentPage * reportsPerPage;
+  const indexOfFirstReport = indexOfLastReport - reportsPerPage;
   const currentReports = filteredReports.slice(
     indexOfFirstReport,
-    indexOfLastReport,
-  )
+    indexOfLastReport
+  );
 
   return (
     <div className="min-h-screen flex flex-col">
       <div
         style={{
-          backgroundImage: 'url(./circle-scatter-haikei.svg)',
-          backgroundSize: 'cover',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center',
-          position: 'fixed', // this ensures the container covers the entire viewport
+          backgroundImage: "url(./circle-scatter-haikei.svg)",
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+          position: "fixed", // this ensures the container covers the entire viewport
           top: 0,
           left: 0,
           right: 0,
@@ -290,7 +297,7 @@ export default function Home() {
               {hideResolved && (
                 <span
                   className={`absolute block bg-2c7f86 w-full h-full rounded-sm checkbox-checked-border`}
-                  style={{ backgroundColor: '#2c7f86' }}
+                  style={{ backgroundColor: "#2c7f86" }}
                 ></span>
               )}
             </span>
@@ -420,7 +427,7 @@ export default function Home() {
                 setCurrentPage(
                   currentPage < Math.ceil(reports.length / reportsPerPage)
                     ? currentPage + 1
-                    : currentPage,
+                    : currentPage
                 )
               }
               disabled={
@@ -456,5 +463,5 @@ export default function Home() {
         )}
       </main>
     </div>
-  )
+  );
 }

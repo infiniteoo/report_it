@@ -8,7 +8,8 @@ import {
   Image,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import axios from "axios";
+import supabase from "../../supabase";
+
 import Icon from "react-native-vector-icons/FontAwesome";
 
 import BarcodeInput from "./BarcodeInput";
@@ -47,32 +48,29 @@ const ReportIssueComponent = () => {
   };
 
   const handleSubmit = async () => {
-    const formData = new FormData();
-    formData.append("description", description);
-    formData.append("barcodeData", barcodeData);
-    formData.append("submittedBy", submittedBy);
-    formData.append("location", locationData);
-    formData.append("resolved", resolved);
-    formData.append("image", {
-      uri: imageUri,
-      type: "image/jpeg",
-      name: "image.jpg",
-    });
-
     try {
-      const response = await axios.post("http://10.0.2.2:7777", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
+      const { data, error } = await supabase.from("incidents").upsert([
+        {
+          description: description,
+          barcodeData: barcodeData,
+          submittedBy: submittedBy,
+          location: locationData,
+          resolved: resolved,
         },
-      });
-      console.log("Upload success!", response);
-      // clear out all the fields
-      setImageUri(null);
-      setDescription("");
-      setBarcodeData("");
-      setSubmittedBy("");
-      setLocationData("");
-      setResolved("N");
+      ]);
+
+      if (!error) {
+        console.log("Upload success!", data);
+        // Clear out all the fields
+        setImageUri(null);
+        setDescription("");
+        setBarcodeData("");
+        setSubmittedBy("");
+        setLocationData("");
+        setResolved("N");
+      } else {
+        console.error("Error uploading:", error);
+      }
     } catch (error) {
       console.error("Error uploading:", error);
     }
